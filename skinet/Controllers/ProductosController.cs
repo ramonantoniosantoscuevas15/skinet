@@ -11,9 +11,9 @@ namespace skinet.Controllers
     {
         
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Producto>>> Get()
+        public async Task<ActionResult<IReadOnlyList<Producto>>> Get(string? marca,string?tipo,string?orden)
         {
-           return Ok(await repositorio.OptenerProductosAsync());
+           return Ok(await repositorio.ObtenerProductosAsync(marca,tipo,orden));
         }
         [HttpGet("{id:int}", Name = "obtenerporid")]
         public async Task<ActionResult<Producto>> Get(int id)
@@ -65,6 +65,16 @@ namespace skinet.Controllers
             }
             return BadRequest("Problema al Borrar el Producto");
 
+        }
+        [HttpGet("marcas")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetMarcas()
+        {
+            return Ok(await repositorio.ObtenerMarcaAsync());
+        }
+        [HttpGet("tipos")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetTipos()
+        {
+            return Ok(await repositorio.ObtenerTipoAsync());
         }
 
         private bool ProductoExistente(int id)
