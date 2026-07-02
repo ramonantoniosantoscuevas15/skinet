@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using skinet.Datos;
 using skinet.Entidades;
 using skinet.Interfaces;
 
@@ -32,14 +33,49 @@ namespace skinet.Repositorios
             return await context.SaveChangesAsync() > 0;
         }
 
+        public async Task<IReadOnlyList<T>> ListaAsync(IEspecificacion<T> espec)
+        {
+            return await AplicarSpecificacion(espec).ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<TResult>> ListaAsync<TResult>(IEspecificacion<T, TResult> espec)
+        {
+            return await AplicarSpecificacion(espec).ToListAsync();
+        }
+
         public async Task<IReadOnlyList<T>> ListadoAsync()
         {
             return await context.Set<T>().ToListAsync();
         }
 
+        public Task<IReadOnlyList<T>> ListadotodoAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        
+
+        public async Task<T?> ObtenerentidadconEspec(IEspecificacion<T> espec)
+        {
+            return await AplicarSpecificacion(espec).FirstOrDefaultAsync();
+        }
+
+        public async Task<TResult?> ObtenerentidadconEspec<TResult>(IEspecificacion<T, TResult> espec)
+        {
+            return await AplicarSpecificacion(espec).FirstOrDefaultAsync();
+        }
+
         public async Task<T?> ObtenerporidAsync(int id)
         {
             return await context.Set<T>().FindAsync(id);
+        }
+        private IQueryable<T> AplicarSpecificacion(IEspecificacion<T> espec)
+        {
+            return EvaluadorEspecificaciones<T>.ObtenerQuery(context.Set<T>().AsQueryable(), espec);
+        }
+        private IQueryable<TResult> AplicarSpecificacion<TResult>(IEspecificacion<T, TResult> espec)
+        {
+            return EvaluadorEspecificaciones<T>.ObtenerQuery<T,TResult>(context.Set<T>().AsQueryable(), espec);
         }
     }
 }

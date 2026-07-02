@@ -1,24 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using skinet.Entidades;
+using skinet.Especificaciones;
 using skinet.Interfaces;
+
 
 namespace skinet.Controllers
 {
     [ApiController]
     [Route("api/productos")]
-    public class ProductosController(IProductoRepositorio repositorio) : ControllerBase
+    public class ProductosController(IRepositorioGenerico<Producto>repositorio) : ControllerBase
     {
         
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Producto>>> Get(string? marca,string?tipo,string?orden)
+        public async Task<ActionResult<IReadOnlyList<Producto>>> Get(string? marca,string?tipo,string orden)
         {
-           return Ok(await repositorio.ObtenerProductosAsync(marca,tipo,orden));
+            var espec = new ProductoEspecificacion(marca,tipo,orden);
+            var productos = await repositorio.ListaAsync(espec);
+            return Ok(productos);
         }
         [HttpGet("{id:int}", Name = "obtenerporid")]
         public async Task<ActionResult<Producto>> Get(int id)
         {
-            var producto = await repositorio.OptenerProductoporidAsync(id);
+            var producto = await repositorio.ObtenerporidAsync(id);
             if(producto == null)
             {
                 return NotFound();
@@ -28,8 +32,8 @@ namespace skinet.Controllers
         [HttpPost]
         public async Task<ActionResult<Producto>> Post(Producto producto)
         {
-            repositorio.AgregarProducto(producto);
-            if(await repositorio.SaveChangesAsync())
+            repositorio.Agregar(producto);
+            if(await repositorio.GuardarCambiosAsync())
             {
                 return CreatedAtRoute("obtenerporid", new {id = producto.id},producto);
             }
@@ -42,8 +46,8 @@ namespace skinet.Controllers
             {
                 return BadRequest("No se Puede Actualizar este Producto");
             }
-            repositorio.ActualizarProducto(producto);
-            if (await repositorio.SaveChangesAsync())
+            repositorio.Actualizar(producto);
+            if (await repositorio.GuardarCambiosAsync())
             {
                 return NoContent();
             }
@@ -53,13 +57,13 @@ namespace skinet.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var producto =  await repositorio.OptenerProductoporidAsync(id);
+            var producto =  await repositorio.ObtenerporidAsync(id);
             if (producto == null)
             {
                 return NotFound();
             }
-            repositorio.BorrarProducto(producto);
-            if (await repositorio.SaveChangesAsync())
+            repositorio.Borrar(producto);
+            if (await repositorio.GuardarCambiosAsync())
             {
                 return NoContent();
             }
@@ -69,17 +73,19 @@ namespace skinet.Controllers
         [HttpGet("marcas")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetMarcas()
         {
-            return Ok(await repositorio.ObtenerMarcaAsync());
+            var espec = new MarcaListEspecificacion();
+            return Ok(await repositorio.ListaAsync(espec));
         }
         [HttpGet("tipos")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetTipos()
         {
-            return Ok(await repositorio.ObtenerTipoAsync());
+            var espec = new TipoListEspecificacion();
+            return Ok(await repositorio.ListaAsync(espec));
         }
 
         private bool ProductoExistente(int id)
         {
-            return repositorio.ExisteProducto(id);
+            return repositorio.Existe(id);
         }
     }
 }
