@@ -19,9 +19,24 @@ namespace skinet.Especificaciones
 
         public bool EsDistinto { get; private set; }
 
-        protected void AgregarOrdenarpor(Expression<Func<T,object>> ordenarporExpresion)
+        public int Tomar { get; private set; }
+
+        public int Omitir { get; private set; }
+
+        public bool PaginacionHabilitada { get; private set; }
+
+        public IQueryable<T> AplicarCriterio(IQueryable<T> query)
         {
-           Ordenarpor = ordenarporExpresion;
+            if(Criterio != null)
+            {
+                query = query.Where(Criterio);
+            }
+            return query;
+        }
+
+        protected void AgregarOrdenarpor(Expression<Func<T, object>> ordenarporExpresion)
+        {
+            Ordenarpor = ordenarporExpresion;
         }
         protected void AgregarOrdenarporDesc(Expression<Func<T, object>> ordenarporDescExpresion)
         {
@@ -30,6 +45,12 @@ namespace skinet.Especificaciones
         protected void AplicarDistincion()
         {
             EsDistinto = true;
+        }
+        protected void AplicarPaginacion(int omitir, int tomar)
+        {
+            Omitir = omitir;
+            Tomar = tomar;
+            PaginacionHabilitada = true;
         }
     }
 }

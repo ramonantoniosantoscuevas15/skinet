@@ -69,6 +69,14 @@ namespace skinet.Repositorios
         {
             return await context.Set<T>().FindAsync(id);
         }
+
+        public async Task<int> TotalAsync(IEspecificacion<T> espec)
+        {
+            var query = context.Set<T>().AsQueryable();
+            query= espec.AplicarCriterio(query);
+            return await query.CountAsync();
+        }
+
         private IQueryable<T> AplicarSpecificacion(IEspecificacion<T> espec)
         {
             return EvaluadorEspecificaciones<T>.ObtenerQuery(context.Set<T>().AsQueryable(), espec);

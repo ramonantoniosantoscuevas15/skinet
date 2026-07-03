@@ -17,6 +17,7 @@ namespace skinet.Interfaces
         void Borrar(T entidad);
         Task<bool> GuardarCambiosAsync();
         bool Existe(int id);
-       
+        Task<int> TotalAsync(IEspecificacion<T> espec);
+
     }
 }

@@ -3,21 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using skinet.Entidades;
 using skinet.Especificaciones;
 using skinet.Interfaces;
+using skinet.RequestHelpers;
 
 
 namespace skinet.Controllers
 {
-    [ApiController]
-    [Route("api/productos")]
-    public class ProductosController(IRepositorioGenerico<Producto>repositorio) : ControllerBase
+    
+    public class ProductosController(IRepositorioGenerico<Producto>repositorio) : BaseApiController
     {
         
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Producto>>> Get(string? marca,string?tipo,string orden)
+        public async Task<ActionResult<IReadOnlyList<Producto>>> Get([FromQuery]ProductoEspecificacionParametros parametros)
         {
-            var espec = new ProductoEspecificacion(marca,tipo,orden);
-            var productos = await repositorio.ListaAsync(espec);
-            return Ok(productos);
+            var espec = new ProductoEspecificacion(parametros);
+            
+            return await CrearPaginaResult(repositorio,espec,parametros.paginaIndex,parametros.CantidadPagina);
         }
         [HttpGet("{id:int}", Name = "obtenerporid")]
         public async Task<ActionResult<Producto>> Get(int id)

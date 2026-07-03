@@ -4,12 +4,14 @@ namespace skinet.Especificaciones
 {
     public class ProductoEspecificacion : EspecificacionesBasicas<Producto>
     {
-        public ProductoEspecificacion(string? marca,string?tipo,string?orden) : base(p =>
-        (string.IsNullOrWhiteSpace(marca) || p.marca == marca) && 
-        (string.IsNullOrWhiteSpace(tipo) || p.tipo == tipo)
+        public ProductoEspecificacion(ProductoEspecificacionParametros parametros) : base(p =>
+        (string.IsNullOrEmpty(parametros.Buscar) || p.nombre.ToLower().Contains(parametros.Buscar)) &&
+        (parametros.marcas.Count == 0 || parametros.marcas.Contains(p.marca)) &&
+        (parametros.tipos.Count ==0 || parametros.tipos.Contains(p.tipo))
             )
         {
-            switch(orden)
+            AplicarPaginacion(parametros.CantidadPagina * (parametros.paginaIndex -1),parametros.CantidadPagina); 
+            switch (parametros.orden)
             {
                 case "precioAsc":
                     AgregarOrdenarpor(p => p.precio);

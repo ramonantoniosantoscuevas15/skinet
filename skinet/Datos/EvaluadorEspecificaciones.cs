@@ -24,6 +24,10 @@ namespace skinet.Datos
             {
                 query = query.Distinct();
             }
+            if(espec.PaginacionHabilitada)
+            {
+                query = query.Skip(espec.Omitir).Take(espec.Tomar);
+            }
             return query;
         }
 
@@ -50,6 +54,10 @@ namespace skinet.Datos
             if(espec.EsDistinto)
             {
                 queryseleccionado = queryseleccionado?.Distinct();
+            }
+            if (espec.PaginacionHabilitada)
+            {
+                queryseleccionado = queryseleccionado?.Skip(espec.Omitir).Take(espec.Tomar);
             }
             return queryseleccionado ?? query.Cast<TResult>(); 
         }
