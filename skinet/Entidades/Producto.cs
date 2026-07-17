@@ -9,6 +9,6 @@
         public required string foto { get; set; } 
         public required string tipo { get; set; } 
         public required string marca { get; set; } 
-        public  int stock { get; set; }
+        public required  int stock { get; set; }
     }
 }

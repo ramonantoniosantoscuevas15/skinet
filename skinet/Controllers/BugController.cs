@@ -27,7 +27,7 @@ namespace skinet.Controllers
         [HttpGet("internalerror")]
         public IActionResult GetInternalError()
         {
-            throw new Exception("this is an imnternal error");
+            throw new Exception("this is an internal error");
         }
         [HttpPost("validationerror")]
         public IActionResult GetValidationError([FromBody] CrearProductoDto producto)

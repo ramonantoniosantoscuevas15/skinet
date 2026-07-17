@@ -3,6 +3,8 @@ using skinet;
 using skinet.Interfaces;
 using skinet.Middleware;
 using skinet.Repositorios;
+using skinet.Servicios;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +13,27 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AplicationDbContext>(opciones => opciones.UseSqlServer("name=DefaultConnection"));
 builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
 builder.Services.AddScoped(typeof(IRepositorioGenerico<>), typeof(RepositorioGenrico<>));
+builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
+{
+    var connstring = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("No se encontro la cadena de conexion para Redis");
+    var options = ConfigurationOptions.Parse(connstring, true);
+    return ConnectionMultiplexer.Connect(options);
+});
+builder.Services.AddSingleton<ICarritoServicios, CarritoServicios>();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors();
+var origenesPermitidos = builder.Configuration.GetValue<string>("origenesPermitidos")!.Split(",");
+builder.Services.AddCors(opciones => {
+    opciones.AddDefaultPolicy(configuracion =>
+    {
+        configuracion.WithOrigins(origenesPermitidos).AllowAnyMethod().AllowAnyHeader();
+        
+    });
+    opciones.AddPolicy("libre", configuracion =>
+    {
+        configuracion.WithOrigins(origenesPermitidos).AllowAnyHeader().AllowAnyMethod();
+    });
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -30,7 +50,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.UseMiddleware<ExeceptionMiddleware>();
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200", "https://localhost:4200"));
+app.UseCors();
 
 app.MapControllers();
 

@@ -16,7 +16,7 @@ namespace skinet.DTOs
         public  string tipo { get; set; } = string.Empty;
         [Required]
         public  string marca { get; set; } = string.Empty;
-        [Range(1, int.MaxValue, ErrorMessage = "El Stock debe ser 1")]
-        public int stock { get; set; }
+        [Required]
+        public int stock { get; set; } 
     }
 }
