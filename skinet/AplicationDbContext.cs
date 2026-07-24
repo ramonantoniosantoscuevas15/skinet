@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using skinet.Configuaracion;
 using skinet.Entidades;
 
 namespace skinet
 {
-    public class AplicationDbContext : DbContext
+    public class AplicationDbContext : IdentityDbContext<AppUsusario>
     {
         public AplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -19,5 +20,6 @@ namespace skinet
 
         }
         public DbSet<Producto> Productos { get; set; }
+        public DbSet<Direccion> Direcciones { get; set; }
     }
 }

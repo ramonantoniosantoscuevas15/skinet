@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using skinet.DTOs;
 using skinet.Entidades;
+using System.Security.Claims;
 
 namespace skinet.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class BugController: BaseApiController
     {
+        [AllowAnonymous]
         [HttpGet("noautorizado")]
         public IActionResult GetNoAutorizado()
         {
@@ -34,6 +38,16 @@ namespace skinet.Controllers
         {
             return Ok();
         }
+
+        [HttpGet("secreto")]
+        public IActionResult GetSecreto()
+        {
+            var nombre = User.FindFirst(ClaimTypes.Name)?.Value;
+            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok(" Hola " + nombre + " Con el id " +  id);
+
+        }
+
 
     }
 }

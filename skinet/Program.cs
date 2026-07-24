@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using skinet;
+using skinet.Entidades;
 using skinet.Interfaces;
 using skinet.Middleware;
 using skinet.Repositorios;
@@ -20,18 +21,20 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
     return ConnectionMultiplexer.Connect(options);
 });
 builder.Services.AddSingleton<ICarritoServicios, CarritoServicios>();
+builder.Services.AddAuthentication();
+builder.Services.AddIdentityApiEndpoints<AppUsusario>().AddEntityFrameworkStores<AplicationDbContext>();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 var origenesPermitidos = builder.Configuration.GetValue<string>("origenesPermitidos")!.Split(",");
 builder.Services.AddCors(opciones => {
     opciones.AddDefaultPolicy(configuracion =>
     {
-        configuracion.WithOrigins(origenesPermitidos).AllowAnyMethod().AllowAnyHeader();
+        configuracion.WithOrigins(origenesPermitidos).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
         
     });
     opciones.AddPolicy("libre", configuracion =>
     {
-        configuracion.WithOrigins(origenesPermitidos).AllowAnyHeader().AllowAnyMethod();
+        configuracion.WithOrigins(origenesPermitidos).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -53,5 +56,6 @@ app.UseMiddleware<ExeceptionMiddleware>();
 app.UseCors();
 
 app.MapControllers();
+app.MapGroup("api").MapIdentityApi<AppUsusario>(); //api/login
 
 app.Run();
